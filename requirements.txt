@@ -1,0 +1,5 @@
+streamlit
+spacy>=3.4.0
+pandas
+plotly
+fpdf2==2.7.6
