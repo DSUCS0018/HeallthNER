@@ -4,6 +4,8 @@ import pandas as pd
 import plotly.express as px
 from fpdf import FPDF
 from io import BytesIO
+import warnings
+warnings.filterwarnings("ignore")
 
 # -------------------- Page Config --------------------
 st.set_page_config(page_title="HealthNER", layout="wide")
@@ -11,7 +13,20 @@ st.set_page_config(page_title="HealthNER", layout="wide")
 # -------------------- Load the model --------------------
 @st.cache_resource
 def load_model():
-    return spacy.load("healthner_model")
+    try:
+        # Try to load your custom model first
+        return spacy.load("healthner_model")
+    except OSError:
+        # If custom model doesn't exist, try to download and load en_core_web_sm
+        try:
+            return spacy.load("en_core_web_sm")
+        except OSError:
+            # Download the model if it doesn't exist
+            st.info("📥 Downloading spaCy English model... This may take a moment.")
+            import subprocess
+            import sys
+            subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
+            return spacy.load("en_core_web_sm")
 
 nlp = load_model()
 
@@ -50,7 +65,7 @@ st.markdown(f"<style>{base_css}{theme_css}</style>", unsafe_allow_html=True)
 
 # -------------------- Title --------------------
 st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-st.image("medical.png", width=80)
+# st.image("medical.png", width=80)  # Commented out since image might not exist
 st.markdown("<h1 style='margin-bottom: 0;'>HealthNER</h1><p>Named Entity Recognition for Medical Text</p>", unsafe_allow_html=True)
 st.markdown("</div>", unsafe_allow_html=True)
 
