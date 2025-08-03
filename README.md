@@ -32,9 +32,6 @@ HealthNER is a Natural Language Processing (NLP) project built using [spaCy](htt
 
 ## 📊 Screenshots
 
-### 🧪 Evaluation Results
-![Model Evaluation Screenshot](health-ner.png)
-
 ### 💻 Streamlit Interface
 
 #### 📥 Input
