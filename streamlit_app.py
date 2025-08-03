@@ -5,10 +5,12 @@ import plotly.express as px
 from fpdf import FPDF
 from io import BytesIO
 import warnings
+
 warnings.filterwarnings("ignore")
 
 # -------------------- Page Config --------------------
 st.set_page_config(page_title="HealthNER", layout="wide")
+
 
 # -------------------- Load the model --------------------
 @st.cache_resource
@@ -28,6 +30,7 @@ def load_model():
             subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
             return spacy.load("en_core_web_sm")
 
+
 nlp = load_model()
 
 # -------------------- Sample Data --------------------
@@ -41,8 +44,10 @@ sample_texts = {
 if "dark_mode" not in st.session_state:
     st.session_state.dark_mode = False
 
+
 def toggle_dark_mode():
     st.session_state.dark_mode = not st.session_state.dark_mode
+
 
 st.sidebar.checkbox("🌙 Dark Mode", value=st.session_state.dark_mode, on_change=toggle_dark_mode)
 
@@ -66,7 +71,8 @@ st.markdown(f"<style>{base_css}{theme_css}</style>", unsafe_allow_html=True)
 # -------------------- Title --------------------
 st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
 # st.image("medical.png", width=80)  # Commented out since image might not exist
-st.markdown("<h1 style='margin-bottom: 0;'>HealthNER</h1><p>Named Entity Recognition for Medical Text</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='margin-bottom: 0;'>HealthNER</h1><p>Named Entity Recognition for Medical Text</p>",
+            unsafe_allow_html=True)
 st.markdown("</div>", unsafe_allow_html=True)
 
 # -------------------- Session State --------------------
@@ -82,64 +88,82 @@ with st.sidebar:
     if st.button("🕓 Show History"):
         st.session_state.show_history = not st.session_state.show_history
 
-    if st.session_state.show_history:
+    if st.session_state.show_history and st.session_state.history:
         st.markdown("### Analyzed Texts:")
         for i, text in enumerate(st.session_state.history):
-            st.markdown(f"**{i+1}.** {text[:100]}...")
+            st.markdown(f"**{i + 1}.** {text[:100]}...")
 
-            doc = nlp(text)
-            highlighted_text = text
-            for ent in reversed(doc.ents):
-                label = f"[{ent.label_.upper()}]"
-                highlighted_text = (
-                    highlighted_text[:ent.start_char] + label + ent.text + label + highlighted_text[ent.end_char:]
-                )
+            try:
+                doc = nlp(text)
+                highlighted_text = text
+                for ent in reversed(doc.ents):
+                    label = f"[{ent.label_.upper()}]"
+                    highlighted_text = (
+                            highlighted_text[:ent.start_char] + label + ent.text + label + highlighted_text[
+                                                                                           ent.end_char:]
+                    )
 
-            data = [(ent.text, ent.label_) for ent in doc.ents]
-            df = pd.DataFrame(data, columns=["Entity", "Label"])
+                data = [(ent.text, ent.label_) for ent in doc.ents]
+                df = pd.DataFrame(data, columns=["Entity", "Label"])
 
-            pdf = FPDF()
-            pdf.add_page()
-            pdf.set_font("Arial", style='B', size=16)
-            pdf.cell(0, 10, "HealthNER Analysis Report", ln=True, align='C')
-            pdf.set_font("Arial", size=12)
-            safe_text = text.encode("latin-1", "replace").decode("latin-1")
-            safe_highlight = highlighted_text.encode("latin-1", "replace").decode("latin-1")
+                # PDF Generation with proper error handling
+                try:
+                    pdf = FPDF()
+                    pdf.add_page()
+                    pdf.set_font("Arial", style='B', size=16)
+                    pdf.cell(0, 10, "HealthNER Analysis Report", ln=True, align='C')
+                    pdf.set_font("Arial", size=12)
 
-            pdf.multi_cell(0, 10, f"\nOriginal Input:\n{safe_text}\n")
-            pdf.multi_cell(0, 10, f"\nNamed Entity Highlights:\n{safe_highlight}\n")
+                    # Handle text encoding properly
+                    safe_text = text.encode("latin-1", "replace").decode("latin-1")
+                    safe_highlight = highlighted_text.encode("latin-1", "replace").decode("latin-1")
 
-            if not df.empty:
-                pdf.set_font("Arial", style='B', size=12)
-                pdf.cell(90, 10, "Entity", 1)
-                pdf.cell(90, 10, "Label", 1, ln=True)
-                pdf.set_font("Arial", size=12)
-                for row in data:
-                    entity = row[0].encode("latin-1", "replace").decode("latin-1")
-                    label = row[1].encode("latin-1", "replace").decode("latin-1")
-                    pdf.cell(90, 10, entity, 1)
-                    pdf.cell(90, 10, label, 1, ln=True)
-            else:
-                pdf.multi_cell(0, 10, "\nNo entities found.")
+                    pdf.multi_cell(0, 10, f"\nOriginal Input:\n{safe_text}\n")
+                    pdf.multi_cell(0, 10, f"\nNamed Entity Highlights:\n{safe_highlight}\n")
 
-            pdf_output = BytesIO()
-            pdf_output.write(pdf.output(dest='S').encode('latin-1', 'replace'))
-            pdf_output.seek(0)
+                    if not df.empty:
+                        pdf.set_font("Arial", style='B', size=12)
+                        pdf.cell(90, 10, "Entity", 1)
+                        pdf.cell(90, 10, "Label", 1, ln=True)
+                        pdf.set_font("Arial", size=12)
+                        for row in data:
+                            entity = row[0].encode("latin-1", "replace").decode("latin-1")
+                            label = row[1].encode("latin-1", "replace").decode("latin-1")
+                            pdf.cell(90, 10, entity, 1)
+                            pdf.cell(90, 10, label, 1, ln=True)
+                    else:
+                        pdf.multi_cell(0, 10, "\nNo entities found.")
 
-            st.download_button(
-                label=f"⬇️ PDF {i+1}",
-                data=pdf_output,
-                file_name=f"history_entry_{i+1}.pdf",
-                mime="application/pdf"
-            )
+                    # Fixed PDF output handling
+                    pdf_output = BytesIO()
+                    pdf_bytes = pdf.output()
+                    if isinstance(pdf_bytes, str):
+                        pdf_output.write(pdf_bytes.encode('latin-1', 'replace'))
+                    else:
+                        pdf_output.write(pdf_bytes)
+                    pdf_output.seek(0)
 
-            csv_bytes = df.to_csv(index=False).encode('utf-8')
-            st.download_button(
-                label=f"⬇️ CSV {i+1}",
-                data=csv_bytes,
-                file_name=f"history_entry_{i+1}.csv",
-                mime="text/csv"
-            )
+                    st.download_button(
+                        label=f"⬇️ PDF {i + 1}",
+                        data=pdf_output,
+                        file_name=f"history_entry_{i + 1}.pdf",
+                        mime="application/pdf"
+                    )
+                except Exception as pdf_error:
+                    st.error(f"PDF generation failed: {str(pdf_error)}")
+
+                # CSV download (this should work fine)
+                if not df.empty:
+                    csv_bytes = df.to_csv(index=False).encode('utf-8')
+                    st.download_button(
+                        label=f"⬇️ CSV {i + 1}",
+                        data=csv_bytes,
+                        file_name=f"history_entry_{i + 1}.csv",
+                        mime="text/csv"
+                    )
+
+            except Exception as e:
+                st.error(f"Error processing history item {i + 1}: {str(e)}")
 
 # -------------------- Load Sample --------------------
 selected_example = st.selectbox("💡 Choose a sample text (optional)", ["-- Select --"] + list(sample_texts.keys()))
@@ -154,7 +178,8 @@ if uploaded_file is not None:
     st.session_state.input_text = uploaded_text
 
 # -------------------- Text Area --------------------
-text_input = st.text_area("📝 Enter medical text below:", value=st.session_state.input_text, key="input_area", height=200)
+text_input = st.text_area("📝 Enter medical text below:", value=st.session_state.input_text, key="input_area",
+                          height=200)
 
 # -------------------- Analyze --------------------
 if st.button("🔍 Analyze"):
