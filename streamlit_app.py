@@ -69,10 +69,19 @@ theme_css = dark_mode_css if st.session_state.dark_mode else light_mode_css
 st.markdown(f"<style>{base_css}{theme_css}</style>", unsafe_allow_html=True)
 
 # -------------------- Title --------------------
+
+# -------------------- Title with Logo --------------------
 st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-# st.image("medical.png", width=80)  # Commented out since image might not exist
-st.markdown("<h1 style='margin-bottom: 0;'>HealthNER</h1><p>Named Entity Recognition for Medical Text</p>",
-            unsafe_allow_html=True)
+
+# Add your logo here
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    try:
+        st.image("A.png", width=100)  # Adjust width as needed (50-150 looks good)
+    except:
+        st.write("🩺")  # Fallback emoji if image not found
+
+st.markdown("<h1 style='margin-bottom: 0; margin-top: 10px;'>HealthNER</h1><p>Named Entity Recognition for Medical Text</p>", unsafe_allow_html=True)
 st.markdown("</div>", unsafe_allow_html=True)
 
 # -------------------- Session State --------------------
