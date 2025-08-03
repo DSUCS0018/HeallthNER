@@ -71,7 +71,7 @@ st.markdown(f"<style>{base_css}{theme_css}</style>", unsafe_allow_html=True)
 # -------------------- Title --------------------
 st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
 # st.image("medical.png", width=80)  # Commented out since image might not exist
-st.markdown("<h1 style='margin-bottom: 0;'>HealthNER</h1><p>Named Entity Recognition for Medical Text</p>",
+st.markdown("<h1 style='margin-bottom: 0;'>🩺HealthNER</h1><p>Named Entity Recognition for Medical Text</p>",
             unsafe_allow_html=True)
 st.markdown("</div>", unsafe_allow_html=True)
 
@@ -239,3 +239,4 @@ if st.button("🔍 Analyze"):
 if st.button("🧹 Clear"):
     st.session_state.input_text = ""
     st.rerun()
+
