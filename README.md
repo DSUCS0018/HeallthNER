@@ -3,7 +3,7 @@
 HealthNER is a Natural Language Processing (NLP) project built using [spaCy](https://spacy.io/) to automatically extract meaningful medical entities such as **diseases**, **symptoms**, and **drugs** from unstructured clinical text. This allows healthcare data to be converted into a more structured and analyzable format.
 
 ## 🌐 Live Demo
-**Try it now:** [https://heallthner.streamlit.app/](https://heallthner.streamlit.app/)
+**Try it now:** [https://healthner.streamlit.app/](https://healthner.streamlit.app/)
 
 ---
 
