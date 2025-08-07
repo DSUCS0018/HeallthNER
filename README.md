@@ -124,23 +124,7 @@ The custom NER model is trained on the NCBI Disease dataset and evaluated using 
 - **Medical Documentation**: Automatically tag and categorize medical documents
 - **Drug Discovery**: Identify relationships between diseases, symptoms, and treatments
 
----
 
-## 🤝 Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## 📝 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
 
 ## 🙏 Acknowledgments
 - [spaCy](https://spacy.io/) team for the excellent NLP library
